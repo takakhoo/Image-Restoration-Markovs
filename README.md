@@ -1,42 +1,51 @@
-# Markov Restoration: Image Denoising Using a Pairwise MRF
+# Binary Image Restoration with a Pairwise Markov Random Field
 
-## Overview
-This project explores an advanced image restoration technique based on a pairwise Markov Random Field (MRF) combined with custom optimization strategies. I developed an independent implementation to restore a clean image from a noisy observation, where noise is introduced by flipping approximately 10% of the pixel values. This work delves into both the theoretical underpinnings and practical challenges of probabilistic image restoration.
+An end-to-end notebook that restores a corrupted binary image by minimizing a
+pairwise Markov random field (MRF) energy. The implementation makes the model's
+assumptions visible and compares practical strategies for escaping poor local
+minima.
 
-## Mathematical Framework
-The model is based on the energy function:
+## Approach
+
+The latent pixel labels \(x_i\in\{-1,+1\}\) balance neighborhood smoothness and
+fidelity to the noisy observation \(y_i\):
+
 \[
-E(\mathbf{x}, \mathbf{y}) = h \sum_{i} x_i - \beta \sum_{\langle i,j \rangle} x_i x_j - \eta \sum_{i} x_i y_i,
+E(x,y)=h\sum_i x_i-\beta\sum_{\langle i,j\rangle}x_ix_j-\eta\sum_i x_iy_i.
 \]
-where:
-- \(x_i \in \{-1, +1\}\) represents the restored pixel values,
-- \(y_i \in \{-1, +1\}\) represents the noisy observation,
-- \(h\) is a bias term,
-- \(\beta\) controls spatial smoothness (encouraging similar neighboring pixels),
-- \(\eta\) enforces fidelity to the observed data.
 
-For each pixel, the change in energy when flipping \(x_i\) is computed as:
-\[
-\Delta E = 2\,x_i \left(-h + \eta\,y_i + \beta \sum_{j \in N(i)} x_j\right),
-\]
-with \(N(i)\) denoting the four-neighbor set of pixel \(i\).
+The notebook implements coordinate descent, randomized update order, multiple
+restarts, and simulated annealing. Intermediate images make it possible to
+inspect where each optimizer succeeds or fails.
 
-## Implementation & Experimentation
-I implemented several variants of coordinate descent to minimize the energy:
-- **Baseline Coordinate Descent:** A fixed update order.
-- **Randomized Update Order:** Shuffling pixel updates to avoid cyclic patterns.
-- **Multiple Random Restarts:** Perturbing the initial state to escape local minima.
-- **Simulated Annealing:** Accepting uphill moves with probability 
-  \[
-  P(\text{flip}) = \exp\left(-\frac{\Delta E}{T}\right),
-  \]
-  with a cooling schedule \(T = \frac{T_0}{\sqrt{n+1}}\).
+## Quick start
 
-Through extensive parameter tuning, I achieved near-96% restoration performance, highlighting the delicate balance between model-based regularization and optimization dynamics.
+```bash
+git clone https://github.com/takakhoo/Image-Restoration-Markovs.git
+cd Image-Restoration-Markovs
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+python -m pip install -r requirements.txt
+jupyter lab "Markov Restoration.ipynb"
+```
 
-## Usage
-- **Prerequisites:** Python, NumPy, Matplotlib, PIL.
-- **Run the Notebook:** Open `Markov_Restoration.ipynb` in Jupyter or VSCode.
-- **Customization:** Experiment with parameters \(h\), \(\beta\), \(\eta\), and the annealing schedule to explore different restoration behaviors.
+[Open the executed notebook](Markov%20Restoration.ipynb)
 
----
+Run from the repository root so the notebook can resolve its relative
+`figures/` paths.
+
+## Example output
+
+| Clean reference | 10% pixel corruption | MRF restoration |
+| --- | --- | --- |
+| ![Clean binary reference](figures/Bayes.png) | ![Noisy binary input](figures/Bayes-pre-processed.png) | ![Restored binary image](figures/Bayes-denoised.png) |
+
+## Repository layout
+
+- `Markov Restoration.ipynb` — model, optimization experiments, and outputs
+- `figures/` — clean, corrupted, intermediate, and restored images
+
+## Scope
+
+This project is a transparent educational implementation for binary images. It
+is not intended to compete with modern learned image-restoration systems.
