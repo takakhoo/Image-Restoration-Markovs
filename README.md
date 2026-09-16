@@ -21,8 +21,8 @@ inspect where each optimizer succeeds or fails.
 ## Quick start
 
 ```bash
-git clone https://github.com/takakhoo/Image-Restoration-Markovs.git
-cd Image-Restoration-Markovs
+git clone https://github.com/takakhoo/markov-image-restoration.git
+cd markov-image-restoration
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 python -m pip install -r requirements.txt
@@ -44,6 +44,12 @@ Run from the repository root so the notebook can resolve its relative
 
 - `Markov Restoration.ipynb` — model, optimization experiments, and outputs
 - `figures/` — clean, corrupted, intermediate, and restored images
+
+## Verification
+
+The notebook was executed end to end on September 16, 2026. It regenerated the
+corrupted inputs, optimization traces, and restored-image outputs without cell
+errors.
 
 ## Scope
 
